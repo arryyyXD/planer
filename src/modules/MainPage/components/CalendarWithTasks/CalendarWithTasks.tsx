@@ -48,11 +48,12 @@ const CalendarWithTasks = () => {
     dayjs(selectedDate).year() - (dayjs(selectedDate).year() % 4)
   );
   const [calendarRerenderKey, setCalendarRerenderKey] = useState(0);
-  const tasks = useTasks((s) => s.tasks);
   const addTask = useTasks((s) => s.addTask);
   const toggleTask = useTasks((s) => s.toggleTask);
   const [taskDescription, setTaskDescription] = useState("");
   const dateKey = dayjs(selectedDate).format("YYYY-MM-DD");
+  const tasks = useTasks((s) => s.tasks);
+  
   const [openedTasks, setOpenedTasks] = useState<Record<string, boolean>>({});
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState("");
@@ -78,7 +79,7 @@ const CalendarWithTasks = () => {
       const token = localStorage.getItem("access_token");
 
       try {
-        const res = await fetch("https://app-planer.online/notes", {
+        const res = await fetch("https://app-planer.online/notes?range=all", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -90,7 +91,7 @@ const CalendarWithTasks = () => {
         if (!Array.isArray(notes)) {
           throw new Error("Неверный формат ответа: ожидался массив");
         }
-
+        console.log(notes)
         notes.forEach((note) => {
           const dateKey = dayjs(note.date).format("YYYY-MM-DD");
           const existing = tasks[dateKey]?.find(
@@ -162,9 +163,9 @@ const CalendarWithTasks = () => {
     console.log("notificationTime:", notificationTime);
 
     const notificationISOString =
-  notificationTime && dayjs(notificationTime).isValid()
-    ? dayjs(notificationTime).toISOString() // без .utc()!
-    : null;
+      notificationTime && dayjs(notificationTime).isValid()
+        ? dayjs(notificationTime).toISOString() // без .utc()!
+        : null;
 
 
     console.log("notificationISOString:", notificationISOString);
@@ -413,7 +414,7 @@ const CalendarWithTasks = () => {
       if (!Array.isArray(notes)) {
         throw new Error("Неверный формат ответа: ожидался массив");
       }
-
+      console.log(notes)
       notes.forEach((note) => {
         const dateKey = dayjs(note.date).format("YYYY-MM-DD");
         const existing = tasks[dateKey]?.find(
