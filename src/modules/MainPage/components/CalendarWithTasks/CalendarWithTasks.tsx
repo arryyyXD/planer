@@ -134,7 +134,7 @@ const CalendarWithTasks = () => {
       })
     : "";
 
- const handleAddTask = async () => {
+  const handleAddTask = async () => {
     if (!taskTitle) {
       showNotification({
         title: "Ошибка",
@@ -170,7 +170,7 @@ const CalendarWithTasks = () => {
       description: taskDescription,
       date: new Date(selectedDate).toISOString(),
       properties: {
-        category: newCategory  "Без категории",
+        category: newCategory || "Без категории",
       },
     };
     
@@ -203,7 +203,7 @@ const CalendarWithTasks = () => {
         id: data.data.id.toString(),
         description: data.description,
         title: data.title,
-        category: newCategory  "Без категории",
+        category: newCategory || "Без категории",
         done: data.done,
       });
 
@@ -216,6 +216,7 @@ const CalendarWithTasks = () => {
       console.error("Ошибка при создании заметки", error);
     }
   };
+
   const handleDeleteTask = async (taskId: string) => {
     const token = localStorage.getItem("access_token");
 
