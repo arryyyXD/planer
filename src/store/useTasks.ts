@@ -64,7 +64,7 @@ export const useTasks = create<TaskStore>((set, get) => ({
         properties: { category: task.category },
       };
   
-      const res = await fetch(`http://150.241.86.204:8000/notes/update/${taskId}`, {
+      const res = await fetch(`https://150.241.86.204:8000/notes/update/${taskId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ export const useTasks = create<TaskStore>((set, get) => ({
       });
   
       if (!res.ok) {
-        console.error('Ошибка при обновлении done:', await res.text());
+        console.error('РћС€РёР±РєР° РїСЂРё РѕР±РЅРѕРІР»РµРЅРёРё done:', await res.text());
         return;
       }
   
@@ -87,7 +87,7 @@ export const useTasks = create<TaskStore>((set, get) => ({
         },
       }));
     } catch (error) {
-      console.error('Ошибка при переключении done:', error);
+      console.error('РћС€РёР±РєР° РїСЂРё РїРµСЂРµРєР»СЋС‡РµРЅРёРё done:', error);
     }
   },
   
