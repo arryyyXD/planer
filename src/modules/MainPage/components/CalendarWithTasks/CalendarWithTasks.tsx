@@ -8,9 +8,9 @@ import {
   Stack,
   Text,
   Textarea,
-  TextInput,
   Title,
   Modal,
+  TextInput,
 } from "@mantine/core";
 import {
   IconAlignLeft,
@@ -25,15 +25,15 @@ import {
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEventHandler } from "react";
 import { useTasks } from "../../../../store/useTasks";
 import styles from "./CalendarWithTasks.module.css";
 import { Calendar, TimePicker } from "@mantine/dates";
 import { showNotification } from "@mantine/notifications";
 import { useDisclosure } from "@mantine/hooks";
-import utc from 'dayjs/plugin/utc';  // Подключаем плагин utc
+import utc from "dayjs/plugin/utc";
 
-dayjs.extend(utc); 
+dayjs.extend(utc);
 dayjs.locale("ru");
 
 const initialCategories = ["Работа", "Учёба", "Дом", "Другое"];
@@ -58,6 +58,12 @@ const CalendarWithTasks = () => {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [opened, { open, close }] = useDisclosure(false);
   const updateTask = useTasks((s) => s.updateTask);
+
+  const formatDateToTimeString = (date: Date | null): string =>
+    date
+      ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      : "";
+
   const [notificationTime, setNotificationTime] = useState<Date | null>(null);
 
   const toggleTaskOpen = (taskId: string) => {
@@ -70,7 +76,7 @@ const CalendarWithTasks = () => {
   useEffect(() => {
     const fetchNotes = async () => {
       const token = localStorage.getItem("access_token");
-  
+
       try {
         const res = await fetch("http://150.241.86.204:8000/notes", {
           method: "GET",
@@ -79,15 +85,17 @@ const CalendarWithTasks = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-  
+
         const notes = await res.json();
         if (!Array.isArray(notes)) {
           throw new Error("Неверный формат ответа: ожидался массив");
         }
-  
+
         notes.forEach((note) => {
           const dateKey = dayjs(note.date).format("YYYY-MM-DD");
-          const existing = tasks[dateKey]?.find((t) => t.id === note.id.toString());
+          const existing = tasks[dateKey]?.find(
+            (t) => t.id === note.id.toString()
+          );
           if (!existing) {
             addTask(dateKey, {
               id: note.id.toString(),
@@ -110,10 +118,22 @@ const CalendarWithTasks = () => {
         });
       }
     };
-  
+
     fetchNotes();
   }, []);
-  
+
+  const handleTimeChange = (value: string) => {
+    const newTime = value ? new Date(`1970-01-01T${value}:00`) : null;
+    setNotificationTime(newTime);
+  };
+
+  const timeString = notificationTime
+    ? notificationTime.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
+
   const handleAddTask = async () => {
     if (!taskTitle) {
       showNotification({
@@ -124,24 +144,28 @@ const CalendarWithTasks = () => {
       });
       return;
     }
-  
-    const newCategory = selectedCategory === "new" ? customCategory.trim() : selectedCategory;
-    if (selectedCategory === "new" && customCategory && !categories.includes(customCategory)) {
+
+    const newCategory =
+      selectedCategory === "new" ? customCategory.trim() : selectedCategory;
+    if (
+      selectedCategory === "new" &&
+      customCategory &&
+      !categories.includes(customCategory)
+    ) {
       setCategories((prevCategories) => [...prevCategories, customCategory]);
     }
-  
+
     console.log("notificationTime:", notificationTime);
-  
-    // Получаем текущую дату в локальном времени (не UTC)
-    const currentDate = dayjs().format('YYYY-MM-DD');
-  
-    // Преобразуем строку времени в строку с локальным временем и затем в ISO-строку
-    const notificationISOString = notificationTime && dayjs(`${currentDate}T${notificationTime}`).isValid()
-      ? dayjs.utc(`${currentDate}T${notificationTime}`).local().toISOString() // Преобразуем в локальное время
-      : null;
-  
-    console.log('notificationISOString:', notificationISOString);
-  
+
+    const currentDate = dayjs().format("YYYY-MM-DD");
+
+    const notificationISOString =
+      notificationTime && dayjs(`${currentDate}T${notificationTime}`).isValid()
+        ? dayjs.utc(`${currentDate}T${notificationTime}`).local().toISOString()
+        : null;
+
+    console.log("notificationISOString:", notificationISOString);
+
     const notePayload = {
       title: taskTitle,
       description: taskDescription,
@@ -150,11 +174,11 @@ const CalendarWithTasks = () => {
         category: newCategory || "Без категории",
       },
       notification: {
-        "title": "Напоминание о задании",
-        "time": notificationISOString
-      }
+        title: "Напоминание о задании",
+        time: notificationISOString,
+      },
     };
-  
+
     try {
       const token = localStorage.getItem("access_token");
       const res = await fetch("http://150.241.86.204:8000/notes/create", {
@@ -165,15 +189,15 @@ const CalendarWithTasks = () => {
         },
         body: JSON.stringify(notePayload),
       });
-  
+
       if (!res.ok) {
         console.error("Failed to create task", await res.json());
         return;
       }
-  
+
       const data = await res.json();
       console.log("Note created:", data);
-  
+
       addTask(dayjs(selectedDate).format("YYYY-MM-DD"), {
         id: data.data.id.toString(),
         description: data.description,
@@ -181,9 +205,9 @@ const CalendarWithTasks = () => {
         category: newCategory || "Без категории",
         done: data.done,
       });
-  
+
       await fetchTasksForDate(dayjs(selectedDate).format("YYYY-MM-DD"));
-  
+
       setTaskTitle("");
       setCustomCategory("");
       setSelectedCategory(null);
@@ -191,19 +215,21 @@ const CalendarWithTasks = () => {
       console.error("Ошибка при создании заметки", error);
     }
   };
-  
-  
+
   const handleDeleteTask = async (taskId: string) => {
     const token = localStorage.getItem("access_token");
 
     try {
-      const res = await fetch(`http://150.241.86.204:8000/notes/delete/${taskId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `http://150.241.86.204:8000/notes/delete/${taskId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (res.ok) {
         showNotification({
@@ -233,20 +259,30 @@ const CalendarWithTasks = () => {
         </div>
       </Menu.Target>
       <Menu.Dropdown>
-        <Menu.Item onClick={(e) => {
-          e.stopPropagation();
-          toggleTask(dateKey, taskId)
-        }}>
+        <Menu.Item
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleTask(dateKey, taskId);
+          }}
+        >
           Переключить статус
         </Menu.Item>
-        <Menu.Item onClick={(e) => {
-          e.stopPropagation();
-          handleEditTask(taskId)}
-        }>Изменить</Menu.Item>
-        <Menu.Item onClick={(e) => {
-          e.stopPropagation();
-          handleDeleteTask(taskId)
-        }}>Удалить</Menu.Item>
+        <Menu.Item
+          onClick={(e) => {
+            e.stopPropagation();
+            handleEditTask(taskId);
+          }}
+        >
+          Изменить
+        </Menu.Item>
+        <Menu.Item
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteTask(taskId);
+          }}
+        >
+          Удалить
+        </Menu.Item>
       </Menu.Dropdown>
     </Menu>
   );
@@ -291,13 +327,13 @@ const CalendarWithTasks = () => {
     if (currentTaskId && newTaskTitle) {
       try {
         const token = localStorage.getItem("access_token");
-  
+
         const notificationISOString = notificationTime
           ? dayjs(notificationTime).isValid()
-            ? dayjs.utc(notificationTime).toISOString() // Convert to UTC ISO string if valid
+            ? dayjs.utc(notificationTime).toISOString()
             : null
           : null;
-  
+
         const notePayload = {
           title: newTaskTitle,
           description: newTaskDescription,
@@ -306,10 +342,10 @@ const CalendarWithTasks = () => {
           properties: { category: newTaskCategory || "" },
           notification: {
             title: "Напоминание о задании",
-            time: notificationISOString, // Include the notification time
+            time: notificationISOString,
           },
         };
-  
+
         const res = await fetch(
           `http://150.241.86.204:8000/notes/update/${currentTaskId}`,
           {
@@ -321,30 +357,27 @@ const CalendarWithTasks = () => {
             body: JSON.stringify(notePayload),
           }
         );
-  
+
         if (!res.ok) {
           console.error("Error updating note", await res.json());
           return;
         }
-  
-        const data = await res.json();
-  
-        // Ensure tasks[dateKey] exists before updating
+
         if (!tasks[dateKey]) {
           tasks[dateKey] = [];
         }
-  
+
         updateTask(dateKey, {
           id: currentTaskId,
           title: newTaskTitle,
           description: newTaskDescription,
           category: newTaskCategory || "Без категории",
           done: false,
-          time: notificationISOString, // Update task with new notification time
+          time: notificationISOString,
         });
-  
+
         await fetchTasksForDate(dayjs(selectedDate).format("YYYY-MM-DD"));
-  
+
         close();
         setNewTaskTitle("");
         setNewTaskDescription("");
@@ -356,28 +389,31 @@ const CalendarWithTasks = () => {
       }
     }
   };
-  
-  
-  
+
   const fetchTasksForDate = async (dateKey: string) => {
     const token = localStorage.getItem("access_token");
-  
+
     try {
-      const res = await fetch(`http://150.241.86.204:8000/notes?date=${dateKey}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `http://150.241.86.204:8000/notes?date=${dateKey}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const notes = await res.json();
       if (!Array.isArray(notes)) {
         throw new Error("Неверный формат ответа: ожидался массив");
       }
-  
+
       notes.forEach((note) => {
         const dateKey = dayjs(note.date).format("YYYY-MM-DD");
-        const existing = tasks[dateKey]?.find((t) => t.id === note.id.toString());
+        const existing = tasks[dateKey]?.find(
+          (t) => t.id === note.id.toString()
+        );
         if (!existing) {
           addTask(dateKey, {
             id: note.id.toString(),
@@ -385,7 +421,7 @@ const CalendarWithTasks = () => {
             description: note.description || "",
             category: note.properties?.category || "Без категории",
             done: note.done ?? true,
-            time: note.notifications[0]?.time || null, // Ensure time is included
+            time: note.notifications[0]?.time || null,
           });
         }
       });
@@ -399,7 +435,6 @@ const CalendarWithTasks = () => {
       });
     }
   };
-  
 
   return (
     <>
@@ -481,17 +516,14 @@ const CalendarWithTasks = () => {
               },
             }}
           />
-          <TimePicker
-            label="Время уведомления"
-            value={notificationTime}
-            onChange={setNotificationTime}
-          />
+          <TimePicker value={timeString} onChange={handleTimeChange} />
+
           <Select
             label="Категория"
             value={newTaskCategory}
             onChange={setNewTaskCategory}
             data={categories.map((c) => ({ value: c, label: c }))}
-            icon={<IconCategory size={18} />}
+            leftSection={<IconCategory size={18} />}
             radius="md"
             variant="filled"
             styles={{
@@ -506,12 +538,6 @@ const CalendarWithTasks = () => {
                 "&:focus": {
                   borderColor: "#B92E3B",
                   boxShadow: "0 0 0 2px rgba(185, 46, 59, 0.2)",
-                },
-              },
-              item: {
-                "&[data-selected]": {
-                  backgroundColor: "#B92E3B",
-                  "&:hover": { backgroundColor: "#A22935" },
                 },
               },
             }}
@@ -594,10 +620,12 @@ const CalendarWithTasks = () => {
 
           <Calendar
             key={calendarRerenderKey}
-            value={selectedDate}
-            onChange={(date: Date | null) => {
-              if (date) setSelectedDate(date);
-            }}
+            onChange={
+              ((date: string) => {
+                const newDate = new Date(date); // Преобразуем строку в Date
+                setSelectedDate(newDate);
+              }) as unknown as FormEventHandler<HTMLDivElement>
+            }
             styles={{
               day: { fontSize: 18, height: 50, width: 50, borderRadius: 999 },
               weekday: { fontSize: 16, color: "#666" },
@@ -618,7 +646,7 @@ const CalendarWithTasks = () => {
                 className: `${isSelected ? styles.selectedDay : ""} ${
                   hasTask ? styles.indicator : ""
                 }`,
-                onClick: () => setSelectedDate(date),
+                onClick: () => setSelectedDate(new Date(date)), // Преобразуем строку обратно в Date
               };
             }}
             renderDay={(date) => {
@@ -680,8 +708,14 @@ const CalendarWithTasks = () => {
             />
             <TimePicker
               label="Время уведомления"
-              value={notificationTime}
-              onChange={setNotificationTime}
+              value={formatDateToTimeString(notificationTime)}
+              onChange={(val) => {
+                const [hours, minutes] = val.split(":").map(Number);
+                const newDate = new Date();
+                newDate.setHours(hours);
+                newDate.setMinutes(minutes);
+                setNotificationTime(newDate);
+              }}
             />
             <Select
               radius="md"
@@ -737,7 +771,7 @@ const CalendarWithTasks = () => {
                     className={styles.taskMain}
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleTaskOpen(task.id)
+                      toggleTaskOpen(task.id);
                     }}
                     style={{ cursor: "pointer" }}
                   >
