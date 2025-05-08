@@ -78,7 +78,7 @@ const CalendarWithTasks = () => {
       const token = localStorage.getItem("access_token");
 
       try {
-        const res = await fetch("https://150.241.86.204:8000/notes", {
+        const res = await fetch("https://150.241.86.204/notes", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -181,7 +181,7 @@ const CalendarWithTasks = () => {
 
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch("https://150.241.86.204:8000/notes/create", {
+      const res = await fetch("https://150.241.86.204/notes/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -221,7 +221,7 @@ const CalendarWithTasks = () => {
 
     try {
       const res = await fetch(
-        `https://150.241.86.204:8000/notes/delete/${taskId}`,
+        `https://150.241.86.204/notes/delete/${taskId}`,
         {
           method: "DELETE",
           headers: {
@@ -347,7 +347,7 @@ const CalendarWithTasks = () => {
         };
 
         const res = await fetch(
-          `https://150.241.86.204:8000/notes/update/${currentTaskId}`,
+          `https://150.241.86.204/notes/update/${currentTaskId}`,
           {
             method: "PUT",
             headers: {
@@ -395,7 +395,7 @@ const CalendarWithTasks = () => {
 
     try {
       const res = await fetch(
-        `https://150.241.86.204:8000/notes?date=${dateKey}`,
+        `https://150.241.86.204/notes?date=${dateKey}`,
         {
           method: "GET",
           headers: {
