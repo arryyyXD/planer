@@ -134,7 +134,7 @@ const CalendarWithTasks = () => {
       })
     : "";
 
-  const handleAddTask = async () => {
+ const handleAddTask = async () => {
     if (!taskTitle) {
       showNotification({
         title: "Ошибка",
@@ -157,28 +157,29 @@ const CalendarWithTasks = () => {
 
     console.log("notificationTime:", notificationTime);
 
-    const currentDate = dayjs().format("YYYY-MM-DD");
 
     const notificationISOString =
-      notificationTime && dayjs(`${currentDate}T${notificationTime}`).isValid()
-        ? dayjs.utc(`${currentDate}T${notificationTime}`).local().toISOString()
+      notificationTime instanceof Date && !isNaN(notificationTime.getTime())
+        ? dayjs(notificationTime).toISOString()
         : null;
 
     console.log("notificationISOString:", notificationISOString);
 
-    const notePayload = {
+    let notePayload: any = {
       title: taskTitle,
       description: taskDescription,
       date: new Date(selectedDate).toISOString(),
       properties: {
-        category: newCategory || "Без категории",
-      },
-      notification: {
-        title: "Напоминание о задании",
-        time: notificationISOString,
+        category: newCategory  "Без категории",
       },
     };
-
+    
+    if (notificationISOString) {
+      notePayload.notification = {
+        title: "Напоминание о задании",
+        time: notificationISOString,
+      };
+    }
     try {
       const token = localStorage.getItem("access_token");
       const res = await fetch("https://app-planer.online/notes/create", {
@@ -202,7 +203,7 @@ const CalendarWithTasks = () => {
         id: data.data.id.toString(),
         description: data.description,
         title: data.title,
-        category: newCategory || "Без категории",
+        category: newCategory  "Без категории",
         done: data.done,
       });
 
@@ -215,7 +216,6 @@ const CalendarWithTasks = () => {
       console.error("Ошибка при создании заметки", error);
     }
   };
-
   const handleDeleteTask = async (taskId: string) => {
     const token = localStorage.getItem("access_token");
 
