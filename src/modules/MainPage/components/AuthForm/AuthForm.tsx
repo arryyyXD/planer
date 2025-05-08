@@ -40,7 +40,7 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
   };
 
   const handleSubmit = async () => {
-    const url = `http://150.241.86.204:8000/users/${authMode}`;
+    const url = `https://150.241.86.204:8000/users/${authMode}`;
     const body =
       authMode === "register"
         ? { email, password, name: username }
