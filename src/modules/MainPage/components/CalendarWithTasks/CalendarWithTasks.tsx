@@ -97,16 +97,17 @@ const CalendarWithTasks = () => {
             (t) => t.id === note.id.toString()
           );
           if (!existing) {
-            
             addTask(dateKey, {
               id: note.id.toString(),
               title: note.title || "Без названия",
               description: note.description || "",
               category: note.properties?.category || "Без категории",
               done: note.done ?? true,
-              time: Array.isArray(note.notifications) && note.notifications.length > 0
-                ? note.notifications[0].time
-                : null,
+              time:
+                Array.isArray(note.notifications) &&
+                note.notifications.length > 0
+                  ? note.notifications[0].time
+                  : null,
             });
           }
         });
@@ -137,7 +138,7 @@ const CalendarWithTasks = () => {
       })
     : "";
 
-const handleAddTask = async () => {
+  const handleAddTask = async () => {
     if (!taskTitle) {
       showNotification({
         title: "Ошибка",
@@ -160,11 +161,11 @@ const handleAddTask = async () => {
 
     console.log("notificationTime:", notificationTime);
 
-
     const notificationISOString =
-      notificationTime instanceof Date && !isNaN(notificationTime.getTime())
-        ? dayjs(notificationTime).toISOString()
-        : null;
+  notificationTime && dayjs(notificationTime).isValid()
+    ? dayjs(notificationTime).toISOString() // без .utc()!
+    : null;
+
 
     console.log("notificationISOString:", notificationISOString);
 
@@ -176,7 +177,7 @@ const handleAddTask = async () => {
         category: newCategory || "Без категории",
       },
     };
-    
+
     if (notificationISOString) {
       notePayload.notification = {
         title: "Напоминание о задании",
@@ -768,7 +769,7 @@ const handleAddTask = async () => {
                   withBorder
                   shadow="xs"
                 >
-                {task.time ? (
+                  {task.time ? (
                     <Text size="sm" c="dimmed">
                       ⏰ {dayjs(task.time).local().format("HH:mm")}
                     </Text>
