@@ -97,13 +97,16 @@ const CalendarWithTasks = () => {
             (t) => t.id === note.id.toString()
           );
           if (!existing) {
+            
             addTask(dateKey, {
               id: note.id.toString(),
               title: note.title || "Без названия",
               description: note.description || "",
               category: note.properties?.category || "Без категории",
               done: note.done ?? true,
-              time: note.notifications[0]?.time || null,
+              time: Array.isArray(note.notifications) && note.notifications.length > 0
+                ? note.notifications[0].time
+                : null,
             });
           }
         });
@@ -134,7 +137,7 @@ const CalendarWithTasks = () => {
       })
     : "";
 
-  const handleAddTask = async () => {
+const handleAddTask = async () => {
     if (!taskTitle) {
       showNotification({
         title: "Ошибка",
@@ -765,9 +768,11 @@ const CalendarWithTasks = () => {
                   withBorder
                   shadow="xs"
                 >
-                  <Text size="sm" c="dimmed">
-                    ⏰ {dayjs(task.time).local().format("HH:mm")}
-                  </Text>
+                {task.time ? (
+                    <Text size="sm" c="dimmed">
+                      ⏰ {dayjs(task.time).local().format("HH:mm")}
+                    </Text>
+                  ) : null}
                   <div
                     className={styles.taskMain}
                     onClick={(e) => {
