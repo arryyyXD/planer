@@ -40,7 +40,7 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
   };
 
   const handleSubmit = async () => {
-    const url = `https://150.241.86.204/users/${authMode}`;
+    const url = `https://app-planer.online/users/${authMode}`;
     const body =
       authMode === "register"
         ? { email, password, name: username }
