@@ -60,9 +60,9 @@ export const useTasks = create<TaskStore>((set, get) => ({
         title: task.title,
         description: task.description,
         done: updatedDone,
-        date: dayjs(dateKey).toISOString(),
+        date: dayjs(dateKey).toDate().toISOString(), 
         properties: { category: task.category },
-      };
+      };      
   
       const res = await fetch(`https://app-planer.online/notes/update/${taskId}`, {
         method: 'PUT',
