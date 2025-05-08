@@ -60,9 +60,9 @@ export const useTasks = create<TaskStore>((set, get) => ({
         title: task.title,
         description: task.description,
         done: updatedDone,
-        date: dayjs(dateKey).toDate().toISOString(), 
+        date: dayjs(`${dateKey}T12:00:00`).toISOString(), 
         properties: { category: task.category },
-      };      
+      };
   
       const res = await fetch(`https://app-planer.online/notes/update/${taskId}`, {
         method: 'PUT',
@@ -90,8 +90,6 @@ export const useTasks = create<TaskStore>((set, get) => ({
       console.error('Ошибка при переключении done:', error);
     }
   },
-  
-  
 
   editTask: (date, taskId, updatedTask) => {
     set((state) => {
