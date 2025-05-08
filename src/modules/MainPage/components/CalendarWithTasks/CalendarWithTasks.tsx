@@ -78,7 +78,7 @@ const CalendarWithTasks = () => {
       const token = localStorage.getItem("access_token");
 
       try {
-        const res = await fetch("https://150.241.86.204/notes", {
+        const res = await fetch("https://app-planer.online/notes", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -181,7 +181,7 @@ const CalendarWithTasks = () => {
 
     try {
       const token = localStorage.getItem("access_token");
-      const res = await fetch("https://150.241.86.204/notes/create", {
+      const res = await fetch("https://app-planer.online/notes/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -221,7 +221,7 @@ const CalendarWithTasks = () => {
 
     try {
       const res = await fetch(
-        `https://150.241.86.204/notes/delete/${taskId}`,
+        `https://app-planer.online/notes/delete/${taskId}`,
         {
           method: "DELETE",
           headers: {
@@ -347,7 +347,7 @@ const CalendarWithTasks = () => {
         };
 
         const res = await fetch(
-          `https://150.241.86.204/notes/update/${currentTaskId}`,
+          `https://app-planer.online/notes/update/${currentTaskId}`,
           {
             method: "PUT",
             headers: {
@@ -395,7 +395,7 @@ const CalendarWithTasks = () => {
 
     try {
       const res = await fetch(
-        `https://150.241.86.204/notes?date=${dateKey}`,
+        `https://app-planer.online/notes?date=${dateKey}`,
         {
           method: "GET",
           headers: {
