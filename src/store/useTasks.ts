@@ -74,7 +74,7 @@ export const useTasks = create<TaskStore>((set, get) => ({
       });
   
       if (!res.ok) {
-        console.error('РћС€РёР±РєР° РїСЂРё РѕР±РЅРѕРІР»РµРЅРёРё done:', await res.text());
+        console.error('Ошибка при обновлении done:', await res.text());
         return;
       }
   
@@ -87,7 +87,7 @@ export const useTasks = create<TaskStore>((set, get) => ({
         },
       }));
     } catch (error) {
-      console.error('РћС€РёР±РєР° РїСЂРё РїРµСЂРµРєР»СЋС‡РµРЅРёРё done:', error);
+      console.error('Ошибка при переключении done:', error);
     }
   },
   
