@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-
 import {
   TextInput,
   PasswordInput,
@@ -13,12 +12,20 @@ import {
   Notification,
 } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
+import { z } from "zod";
 
 type AuthMode = "login" | "register";
 
 interface AuthFormProps {
   onAuthSuccess: () => void;
 }
+
+// Валидационная схема
+const authSchema = z.object({
+  email: z.string().email("Некорректный email"),
+  password: z.string().min(8, "Пароль должен содержать минимум 8 символов"),
+  name: z.string().optional(),
+});
 
 const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
   const [authMode, setAuthMode] = useState<AuthMode>("login");
@@ -40,6 +47,15 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
   };
 
   const handleSubmit = async () => {
+    const input = { email, password, name: username };
+
+    const result = authSchema.safeParse(input);
+    if (!result.success) {
+      const message = result.error.errors[0].message;
+      setError(message);
+      return;
+    }
+
     const url = `https://app-planer.online/users/${authMode}`;
     const body =
       authMode === "register"
@@ -59,7 +75,6 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
         if (token) {
           localStorage.setItem("access_token", token);
           localStorage.setItem("user_email", data.data.email);
-          console.log(localStorage.getItem("access_token"))
           onAuthSuccess();
         } else if (authMode === "register") {
           toggleMode();
@@ -73,10 +88,8 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
   };
 
   return (
-    <Container size={420} my={40} style={{ backgroundColor: '#c487ed', padding: '35px', borderRadius: '12px'}}>
-      <Title>
-        {authMode === "login" ? "Вход" : "Регистрация"}
-      </Title>
+    <Container size={420} my={40} style={{ backgroundColor: '#c487ed', padding: '35px', borderRadius: '12px' }}>
+      <Title>{authMode === "login" ? "Вход" : "Регистрация"}</Title>
 
       <Paper withBorder shadow="md" p={30} mt={30} radius="md">
         <Stack>
@@ -109,15 +122,16 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
         </Stack>
 
         {error && (
-          <Notification
-            color="red"
-            title="Ошибка"
-            icon={<IconX size={16} />}
-            mt="md"
-          >
-            {error}
-          </Notification>
-        )}
+            <Notification
+              color="red"
+              title="Ошибка"
+              icon={<IconX size={16} />}
+              mt="md"
+              onClose={() => setError(null)} 
+            >
+              {error}
+            </Notification>
+          )}
 
         <Button fullWidth mt="xl" onClick={handleSubmit}>
           {authMode === "login" ? "Войти" : "Зарегистрироваться"}
