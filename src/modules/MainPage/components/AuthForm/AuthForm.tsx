@@ -3,7 +3,7 @@ import {
   TextInput,
   PasswordInput,
   Paper,
-  Text,
+  Title,
   Container,
   Button,
   Group,
@@ -89,7 +89,7 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
 
   return (
     <Container size={420} my={40} style={{ backgroundColor: '#B92E3B', padding: '35px', borderRadius: '12px' }}>
-      <Text color="#B92E3B" size="xl">{authMode === "login" ? "Вход" : "Регистрация"}</Text>
+      <Title color="#fff">{authMode === "login" ? "Вход" : "Регистрация"}</Title>
 
       <Paper withBorder shadow="md" p={30} mt={30} radius="md">
         <Stack>
