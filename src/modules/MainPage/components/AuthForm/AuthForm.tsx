@@ -88,8 +88,8 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
   };
 
   return (
-    <Container size={420} my={40} style={{ backgroundColor: '#cd505c', padding: '35px', borderRadius: '12px' }}>
-      <Title>{authMode === "login" ? "Вход" : "Регистрация"}</Title>
+    <Container size={420} my={40} style={{ backgroundColor: '#B92E3B', padding: '35px', borderRadius: '12px' }}>
+      <Text color="#B92E3B" size="xl">{authMode === "login" ? "Вход" : "Регистрация"}</Text>
 
       <Paper withBorder shadow="md" p={30} mt={30} radius="md">
         <Stack>
@@ -133,7 +133,7 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
             </Notification>
           )}
 
-        <Button fullWidth mt="xl" onClick={handleSubmit}>
+        <Button fullWidth mt="xl" onClick={handleSubmit} color="#B92E3B">
           {authMode === "login" ? "Войти" : "Зарегистрироваться"}
         </Button>
 
