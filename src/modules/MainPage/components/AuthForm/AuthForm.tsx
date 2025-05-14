@@ -88,7 +88,7 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
   };
 
   return (
-    <Container size={420} my={40} style={{ backgroundColor: '#c487ed', padding: '35px', borderRadius: '12px' }}>
+    <Container size={420} my={40} style={{ backgroundColor: '#B92E3B', padding: '35px', borderRadius: '12px' }}>
       <Title>{authMode === "login" ? "Вход" : "Регистрация"}</Title>
 
       <Paper withBorder shadow="md" p={30} mt={30} radius="md">
