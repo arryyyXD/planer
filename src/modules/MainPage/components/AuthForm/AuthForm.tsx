@@ -138,7 +138,7 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
         </Button>
 
         <Group mt="md">
-          <Anchor component="button" size="sm" onClick={toggleMode}>
+          <Anchor component="button" size="sm" onClick={toggleMode} color='#B92E3B'>
             {authMode === "login"
               ? "Нет аккаунта? Зарегистрируйтесь"
               : "Уже есть аккаунт? Войдите"}
