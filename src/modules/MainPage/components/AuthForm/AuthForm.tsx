@@ -3,7 +3,7 @@ import {
   TextInput,
   PasswordInput,
   Paper,
-  Title,
+  Text,
   Container,
   Button,
   Group,
